@@ -90,6 +90,11 @@ describe('inline-source', function () {
 			html = inline(path.resolve('index.html'), test, {compress: false});
 			html.should.eql('<script>var foo = this;</script>');
 		});
+		it.only('should escape <script> tags found in inlined js source', function () {
+			var test = '<script inline src="./script.js"></script>';
+			html = inline(path.resolve('index.html'), test, {compress: true});
+			html.should.eql('<script>var foo="foo",a="%3Cscript%3E%3C/script%3E",bar="bar";</script>');
+		});
 	});
 
 	describe('<link> tag inlining', function () {

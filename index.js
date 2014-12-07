@@ -1,10 +1,11 @@
-var path = require('path')
+var csso = require('csso')
 	, fs = require('fs')
+	, path = require('path')
 	, uglify = require('uglify-js')
-	, csso = require('csso')
 
+	, RE_HREF = /href=["|'](.+?)["|']/
+	, RE_SCRIPT = /(<(\/?script)>)/g
 	, RE_SRC = /src=["|'](.+?)["|']/
-	, RE_HREF = /href=["|'](.+?)["|']/;
 
 /**
  * Synchronously parse 'html' for <script> and <link> tags containing an 'inline' attribute,
@@ -155,6 +156,8 @@ function inline (sources, html, options) {
 					content = source.instance
 						? source.instance.content
 						: fs.readFileSync(source.filepath, 'utf8');
+					// Escape <script> tags in source
+					if (type == 'js' && RE_SCRIPT.test(content)) content = content.replace(RE_SCRIPT, '%3C$2%3E')
 					// Compress if set
 					if (options.compress) content = compressContent(type, content);
 					content = wrapContent(type, content);
